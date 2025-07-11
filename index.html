@@ -20,31 +20,37 @@
   <h1>Total de inscritos:</h1>
   <div id="contador">0</div>
 
-  <script type="module">
-  import { CountUp } from 'https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.7/countUp.min.js';
+  <script>
+    // Variável para armazenar o valor anterior
+    let valorAnterior = 0;
 
-  async function atualizarContador() {
-    try {
-      const response = await fetch("https://webhook.gabrieldantas.com.br/webhook/contagem");
-      const data = await response.json();
-      const valor = data[0]?.total ?? 0;
+    async function atualizarContador() {
+      try {
+        const response = await fetch("https://webhook.gabrieldantas.com.br/webhook/contagem");
+        const data = await response.json();
+        const valorAtual = data[0]?.total ?? 0;
 
-      const animador = new CountUp('contador', valor, {
-        duration: 1.5
-      });
+        // Se o valor mudou, anima apenas a diferença
+        if (valorAtual !== valorAnterior) {
+          const animador = new CountUp('contador', valorAtual, {
+            startVal: valorAnterior, // Começa do valor anterior, não do zero
+            duration: 1.5
+          });
 
-      if (!animador.error) {
-        animador.start();
-      } else {
-        console.error(animador.error);
+          if (!animador.error) {
+            animador.start();
+            valorAnterior = valorAtual; // Atualiza o valor anterior
+          } else {
+            console.error(animador.error);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar os dados:", error);
       }
-    } catch (error) {
-      console.error("Erro ao buscar os dados:", error);
     }
-  }
-  
-  atualizarContador();
-  setInterval(atualizarContador, 10000);
-</script>
+    
+    atualizarContador();
+    setInterval(atualizarContador, 10000);
+  </script>
 </body>
 </html>
