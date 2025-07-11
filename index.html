@@ -13,16 +13,51 @@
       font-size: 80px;
       color: #3E4094;
     }
+    #ultimaAtualizacao {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <h1>Total de inscritos:</h1>
   <div id="contador">0</div>
+  <div id="ultimaAtualizacao">Última atualização: --/--/---- --:--:--</div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script type="module">
     import { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js';
 
     let valorAnterior = 0;
+
+    function formatarData(data) {
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      const horas = String(data.getHours()).padStart(2, '0');
+      const minutos = String(data.getMinutes()).padStart(2, '0');
+      const segundos = String(data.getSeconds()).padStart(2, '0');
+      
+      return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+    }
+
+    function atualizarHorario() {
+      const agora = new Date();
+      document.getElementById('ultimaAtualizacao').textContent = 
+        `Última atualização: ${formatarData(agora)}`;
+    }
+
+    function dispararConfetes() {
+      confetti({
+        particleCount: 150,      
+        spread: 70,             
+        origin: { y: 0.6 },     
+        colors: ['#3E4094', '#FFD700', '#FF6B6B', '#4ECDC4'], 
+      });
+    }
 
     async function atualizarContador() {
       try {
@@ -32,24 +67,32 @@
 
         if (valorAtual !== valorAnterior) {
           const animador = new CountUp('contador', valorAtual, {
-            startVal: valorAnterior,  // Começa do último valor, não do zero
+            startVal: valorAnterior,
             duration: 1.5
           });
 
           if (!animador.error) {
             animador.start();
-            valorAnterior = valorAtual;  // Atualiza o valor anterior
+            
+            
+            if (valorAtual > valorAnterior) {
+              dispararConfetes();
+            }
+            
+            valorAnterior = valorAtual;
           } else {
             console.error(animador.error);
           }
         }
+
+        atualizarHorario();
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);
       }
     }
 
     atualizarContador();
-    setInterval(atualizarContador, 10000);  // Atualiza a cada 10 segundos
+    setInterval(atualizarContador, 300000);
   </script>
 </body>
 </html>
