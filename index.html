@@ -2,20 +2,27 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ESSENCIAL PARA MOBILE -->
   <title>Inscritos Palestra Cersbasi</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin-top: 80px;
+      margin: 20px auto;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2rem); /* Responsivo: 1.5rem (mobile) → 2rem (desktop) */
     }
     #contador {
-      font-size: 80px;
+      font-size: clamp(3rem, 15vw, 5rem); /* Responsivo: 3rem (mobile) → 5rem (desktop) */
       color: #3E4094;
+      margin: 10px 0;
     }
     #ultimaAtualizacao {
-      margin-top: 20px;
-      font-size: 16px;
+      margin-top: 15px;
+      font-size: clamp(0.9rem, 3vw, 1rem); /* Responsivo: 0.9rem (mobile) → 1rem (desktop) */
       color: #666;
       font-style: italic;
     }
@@ -25,7 +32,8 @@
   <h1>Total de inscritos:</h1>
   <div id="contador">0</div>
   <div id="ultimaAtualizacao">Última atualização: --/--/---- --:--:--</div>
-  
+
+  <!-- Confetti (Efeito de comemoração) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script type="module">
@@ -52,10 +60,10 @@
 
     function dispararConfetes() {
       confetti({
-        particleCount: 150,      
-        spread: 70,             
-        origin: { y: 0.6 },     
-        colors: ['#3E4094', '#FFD700', '#FF6B6B', '#4ECDC4'], 
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#3E4094', '#FFD700', '#FF6B6B', '#4ECDC4'],
       });
     }
 
@@ -73,12 +81,7 @@
 
           if (!animador.error) {
             animador.start();
-            
-            
-            if (valorAtual > valorAnterior) {
-              dispararConfetes();
-            }
-            
+            if (valorAtual > valorAnterior) dispararConfetes();
             valorAnterior = valorAtual;
           } else {
             console.error(animador.error);
@@ -92,7 +95,7 @@
     }
 
     atualizarContador();
-    setInterval(atualizarContador, 300000);
+    setInterval(atualizarContador, 10000);
   </script>
 </body>
 </html>
