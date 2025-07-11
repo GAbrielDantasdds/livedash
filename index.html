@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Inscritos Palestra Cersbasi</title>
-  <script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -20,8 +19,9 @@
   <h1>Total de inscritos:</h1>
   <div id="contador">0</div>
 
-  <script>
-    // Variável para armazenar o valor anterior
+  <script type="module">
+    import { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js';
+
     let valorAnterior = 0;
 
     async function atualizarContador() {
@@ -30,16 +30,15 @@
         const data = await response.json();
         const valorAtual = data[0]?.total ?? 0;
 
-        // Se o valor mudou, anima apenas a diferença
         if (valorAtual !== valorAnterior) {
           const animador = new CountUp('contador', valorAtual, {
-            startVal: valorAnterior, // Começa do valor anterior, não do zero
+            startVal: valorAnterior,  // Começa do último valor, não do zero
             duration: 1.5
           });
 
           if (!animador.error) {
             animador.start();
-            valorAnterior = valorAtual; // Atualiza o valor anterior
+            valorAnterior = valorAtual;  // Atualiza o valor anterior
           } else {
             console.error(animador.error);
           }
@@ -48,9 +47,9 @@
         console.error("Erro ao buscar os dados:", error);
       }
     }
-    
+
     atualizarContador();
-    setInterval(atualizarContador, 10000);
+    setInterval(atualizarContador, 10000);  // Atualiza a cada 10 segundos
   </script>
 </body>
 </html>
