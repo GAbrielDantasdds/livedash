@@ -50,11 +50,11 @@
   to right,
   #000000 0%,
   #32CD32 50%,
-  #000000 100%
+  #000000 80%
 );
       background-size: 1000% 100%;
       background-repeat: repeat-x;
-      animation: gradientMove 2s linear infinite;
+      animation: gradientMove 10s linear infinite;
     }
     .texto-progresso {
       position: relative;
@@ -94,7 +94,7 @@
   </div>
 
   <div class="meta-info">
-    Meta: 5.000 inscritos | Progresso: <span id="porcentagem">0</span>%
+    Meta: 6.000 inscritos | Progresso: <span id="porcentagem">0</span>%
   </div>
 
   <div id="ultimaAtualizacao">Última atualização: --/--/---- --:--:--</div>
@@ -104,7 +104,7 @@
     import { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js';
 
     // Configurações
-    const META = 5000;
+    const META = 6000;
     let valorAnterior = 0;
 
     // Função para formatar data
