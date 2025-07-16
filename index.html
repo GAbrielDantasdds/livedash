@@ -2,45 +2,111 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ESSENCIAL PARA MOBILE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inscritos Palestra Cersbasi</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      margin: 20px auto;
       max-width: 800px;
-      padding: 0 20px;
-    }
-    h1 {
-      font-size: clamp(1.5rem, 5vw, 2rem); /* Responsivo: 1.5rem (mobile) → 2rem (desktop) */
+      margin: 0 auto;
+      padding: 20px;
     }
     #contador {
-      font-size: clamp(3rem, 15vw, 5rem); /* Responsivo: 3rem (mobile) → 5rem (desktop) */
+      font-size: 3rem;
       color: #3E4094;
-      margin: 10px 0;
+      margin: 20px 0;
+    }
+    .barra-container {
+      width: 100%;
+      background-color: #f1f1f1;
+      border-radius: 50px;
+      margin: 30px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .barra-progresso {
+      height: 40px;
+      border-radius: 50px;
+      width: 0%;
+      transition: width 1.5s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 15px;
+      color: white;
+      font-weight: bold;
+      position: relative;
+      overflow: hidden;
+    }
+    .gradiente-animado {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:linear-gradient(
+  to right,
+  #000000 0%,
+  #32CD32 50%,
+  #000000 100%
+);
+      background-size: 1000% 100%;
+      background-repeat: repeat-x;
+      animation: gradientMove 2s linear infinite;
+    }
+    .texto-progresso {
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 0 3px rgba(0,0,0,0.5);
+    }
+    .meta-info {
+      margin-top: 10px;
+      color: #666;
+      font-size: 0.9rem;
     }
     #ultimaAtualizacao {
       margin-top: 15px;
-      font-size: clamp(0.9rem, 3vw, 1rem); /* Responsivo: 0.9rem (mobile) → 1rem (desktop) */
       color: #666;
       font-style: italic;
+    }
+
+    @keyframes gradientMove {
+      0% {
+        background-position: 0% 0%;
+      }
+      100% {
+        background-position: -100% 0%;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Total de inscritos:</h1>
   <div id="contador">0</div>
+
+  <div class="barra-container">
+    <div id="barraProgresso" class="barra-progresso">
+      <div class="gradiente-animado"></div>
+      <span class="texto-progresso">0%</span>
+    </div>
+  </div>
+
+  <div class="meta-info">
+    Meta: 5.000 inscritos | Progresso: <span id="porcentagem">0</span>%
+  </div>
+
   <div id="ultimaAtualizacao">Última atualização: --/--/---- --:--:--</div>
 
-  <!-- Confetti (Efeito de comemoração) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <script type="module">
     import { CountUp } from 'https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js';
 
+    // Configurações
+    const META = 5000;
     let valorAnterior = 0;
 
+    // Função para formatar data
     function formatarData(data) {
       const dia = String(data.getDate()).padStart(2, '0');
       const mes = String(data.getMonth() + 1).padStart(2, '0');
@@ -48,25 +114,20 @@
       const horas = String(data.getHours()).padStart(2, '0');
       const minutos = String(data.getMinutes()).padStart(2, '0');
       const segundos = String(data.getSeconds()).padStart(2, '0');
-      
       return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
     }
 
-    function atualizarHorario() {
-      const agora = new Date();
-      document.getElementById('ultimaAtualizacao').textContent = 
-        `Última atualização: ${formatarData(agora)}`;
+    // Função para atualizar barra de progresso
+    function atualizarBarra(valor) {
+      const porcentagem = Math.min(100, (valor / META) * 100);
+      const porcentagemArredondada = porcentagem.toFixed(1);
+
+      document.getElementById('barraProgresso').style.width = `${porcentagem}%`;
+      document.querySelector('.texto-progresso').textContent = `${porcentagemArredondada}%`;
+      document.getElementById('porcentagem').textContent = porcentagemArredondada;
     }
 
-    function dispararConfetes() {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#3E4094', '#FFD700', '#FF6B6B', '#4ECDC4'],
-      });
-    }
-
+    // Função principal
     async function atualizarContador() {
       try {
         const response = await fetch("https://webhook.gabrieldantas.com.br/webhook/contagem");
@@ -74,26 +135,36 @@
         const valorAtual = data[0]?.total ?? 0;
 
         if (valorAtual !== valorAnterior) {
-          const animador = new CountUp('contador', valorAtual, {
+          // Animação do contador
+          new CountUp('contador', valorAtual, {
             startVal: valorAnterior,
             duration: 1.5
-          });
+          }).start();
 
-          if (!animador.error) {
-            animador.start();
-            if (valorAtual > valorAnterior) dispararConfetes();
-            valorAnterior = valorAtual;
-          } else {
-            console.error(animador.error);
+          // Atualizar barra de progresso
+          atualizarBarra(valorAtual);
+
+          // Efeitos visuais quando aumenta
+          if (valorAtual > valorAnterior) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
           }
+
+          valorAnterior = valorAtual;
         }
 
-        atualizarHorario();
+        // Atualizar horário
+        document.getElementById('ultimaAtualizacao').textContent =
+          `Última atualização: ${formatarData(new Date())}`;
       } catch (error) {
-        console.error("Erro ao buscar os dados:", error);
+        console.error("Erro ao atualizar contador:", error);
       }
     }
 
+    // Iniciar
     atualizarContador();
     setInterval(atualizarContador, 300000);
   </script>
